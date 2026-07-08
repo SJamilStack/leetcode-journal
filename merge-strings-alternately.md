@@ -123,31 +123,3 @@ class Solution:
   character in the output must be touched at least once no matter what
   approach you use. There's no way to do better than linear here, and this
   solution doesn't do any unnecessary extra work to get there.
-
-**A more Pythonic alternative, same complexity, worth knowing but not
-necessarily "the" way to write it in an interview:**
-
-```python
-from itertools import zip_longest
-
-class Solution:
-    def mergeAlternately(self, word1: str, word2: str) -> str:
-        return "".join(a + b for a, b in zip_longest(word1, word2, fillvalue=""))
-```
-
-`zip_longest` pairs up characters from both strings and fills in `""` once
-one string runs out, which is a built-in way of getting the same "append the
-leftover tail" behavior as the `while` loop above.
-
----
-
-## 5. Similar Problems
-- (add links here as I find more string-interleaving / two-pointer problems)
-
----
-
-## 6. Review Flag
-- [ ] Revisit in 1 week
-- [ ] Revisit in 1 month
-- [x] Understood the concept — but the "list + join, not string +=" habit is
-      the one thing I want to make automatic going forward
