@@ -1,11 +1,3 @@
-# Problem Journal Template
-
-Copy this file for each new problem. The point isn't to prove I got it right —
-it's to capture what I didn't know yet, so future-me learns faster. Half-finished
-notes are fine. Skipping the "mistakes" and "why it works" sections is not.
-
----
-
 ## 1. Problem Info
 - **Name:** Merge Strings Alternately
 - **Link:** https://leetcode.com/problems/merge-strings-alternately/
