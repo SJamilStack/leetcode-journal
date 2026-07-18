@@ -259,6 +259,89 @@ If an interviewer asks "is this two pointers or sliding window?", a strong answe
 
 ---
 
+## How to think your way to this code
+
+When I first tried LC 3, I made two design choices that differ from the code above: I reached for a **list** instead of a set, and I **added the letter first**, then cleaned. Both felt natural. Both were traps. Here is the repeatable method that catches them on paper, before they become bugs.
+
+### Three questions before any code
+
+**Question 1 — What is the promise?**
+
+State the loop invariant in one sentence:
+
+> "At the end of every turn, the window has no repeats."
+
+Write it down. Literally. Everything else is forced by this sentence.
+
+**Question 2 — What question must I ask, every single turn?**
+
+Read the promise. To keep it, each turn I must ask: *"is this new letter already inside the window?"*
+
+That question — asked once per turn — is what picks the data structure.
+
+**Question 3 — What order of lines keeps the promise unbroken?**
+
+The promise must be true at the *end* of each turn. So: fix problems first, then let the new letter in, then measure.
+
+### Trap 1: list vs set
+
+The logical step I skipped: **don't pick the container by what it holds. Pick it by the question you will ask it.**
+
+Our question, every turn: *"is X inside?"* That is a membership test.
+
+- List: `x in my_list` walks the whole list. O(k) per ask, where k is the window size.
+- Set: `x in my_set` is one hash lookup. **O(1)** per ask.
+
+We ask this n times. List → O(n·k), can degrade to O(n²). Set → O(n). Same code shape, very different speed — the container did that, not the algorithm.
+
+The habit: before choosing a container, say out loud the *operations* you'll perform on it. Here they were "is X inside?", "add X", "remove X" — all three are what a set is for. Common mappings worth memorizing:
+
+- "Is X inside?" → **set**
+- "How many of X inside?" → **dict / counter**
+- "What entered first?" → **queue**
+- "What entered last?" → **stack**
+- "What position is X at?" → then, and only then, a **list**
+
+We never asked "what position?" — that's the tell that a list was the wrong reach. A list still *passes* here, by the way. It just answers a question nobody asked (order) and answers the real question (membership) slowly.
+
+### Trap 2: add first vs clean first
+
+Don't argue about it — *run* it. Suppose the loop body were:
+
+```python
+seen.add(s[right])          # add first
+while s[right] in seen:     # then clean?
+    seen.remove(s[left])
+    left += 1
+```
+
+Trace turn 4 of `"abcba"` — `right = 3`, letter `b`, window `"abc"`:
+
+- Add `b`. But `b` was already in the set — and now the *new* `b` and *old* `b` are indistinguishable.
+- Check: is `b` in seen? Yes → kick `a`, kick the old `b`... is `b` *still* in seen? **Yes — it's the one we just added.** The wall keeps marching, kicks `c`, and the window eats itself.
+
+By adding first, *you* broke the promise — and then your cleanup can't tell your own mess from the real duplicate.
+
+The general rule behind the order:
+
+> **The check must run while the world still reflects the *old* state. Modify after you ask, never before.**
+
+"Is this letter already inside?" is a question about the window *before* the newcomer. So the newcomer may not touch the guest list until the question is answered and the mess is cleaned. The heartbeat of every variable window: **ask → fix → enter → measure.**
+
+(This is the same principle in three costumes: `seen.remove(s[left])` before `left += 1` — use the value, then move; bounds check before box check in a `while` condition — check before touch. One rule everywhere: **read before you write.**)
+
+### The full ritual, compressed
+
+Next problem, run this on paper before typing:
+
+1. **Story** — one sentence, plain words.
+2. **Promise** — what is true at the end of every turn? (the invariant)
+3. **The question** — what must I ask each turn to keep the promise? → *this picks the data structure, by operation, not by content.*
+4. **The heartbeat** — ask → fix → change → measure. Place lines so the promise is never measured while broken.
+5. **Trace one small example by hand** — a dirty turn, like turn 4. If the trace survives the dirty turn, the structure is right.
+
+---
+
 ## Common mistakes (I made half of these)
 
 **1. Adding before cleaning.** Putting `seen.add(s[right])` before the shrink `while`. Now the duplicate check finds the letter you *just* added, and the shrink eats the whole window. Order: clean first, then enter.
