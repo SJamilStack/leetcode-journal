@@ -37,6 +37,13 @@ class Solution:
 
 It worked. But it used extra space to store all the vowel indices, and it took two full passes to do a job that only needed one. There's also a leftover `print(i, c)` debug line in there — a small thing, but worth flagging, since it's the kind of line that gets caught in a real code review.
 
+**Complexity of this attempt:**
+
+- **Time: O(n).** Pass 1 walks the string once to find vowels — O(n). Pass 2 walks the indices list once to swap — at most O(n) if every character is a vowel. Two passes, but both are O(n), so the total is still O(n) overall (two separate O(n) walks add up to O(n), not O(n²)).
+- **Space: O(n).** This is the real cost. The `indices` list can hold up to n positions if every character in the string is a vowel. That's extra memory the final solution doesn't need. (The `list(s)` conversion is required either way, since Python strings are immutable — that part isn't the issue.)
+
+So this version is the same time complexity as the final one, but it pays for a whole second data structure it didn't need. That's the real lesson from this mistake — not that it was *slow*, but that it was *wasteful*.
+
 ---
 
 ## Mistakes I made
@@ -127,6 +134,16 @@ This is the same pattern as Valid Palindrome — two pointers converging from bo
 
 **Complexity:**
 - Time: O(n) — one pass, each pointer visits each position at most once.
-- Space: O(n) for converting the string to a list (Python strings are immutable, so this step is unavoidable) — but O(1) *extra* space beyond that, since no index list is needed.
+- Space: O(n) for converting the string to a list (Python strings are immutable, so this step is unavoidable, and both solutions pay it) — but O(1) *extra* space beyond that, since no index list is needed.
+
+**Side by side:**
+
+| | First attempt | Final solution |
+|---|---|---|
+| Time | O(n) | O(n) |
+| Extra space (beyond the required list conversion) | O(n) — the indices list | O(1) — just two pointers |
+| Passes over the string | 2 | 1 |
+
+Same time complexity either way — the real win of the final solution is the space, and doing it in a single pass instead of two.
 
 **The one-line takeaway:** *"Walk two fingers inward. Skip non-vowels. Swap what's left."*
